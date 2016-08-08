@@ -65,7 +65,7 @@
    '("%.*" . font-lock-comment-face)
    '("module \\(.+\\)\\." 1 font-lock-doc-face)
    '("import_module" . font-lock-keyword-face)
-   '(" \\(if\\|then\\|else\\|interface\\|pred\\|func\\|module\\|implementation\\)" . font-lock-keyword-face)
+   '("[\t ]*\\(if\\|then\\|else\\|interface\\|pred\\|func\\|module\\|implementation\\)" . font-lock-keyword-face)
    '("[[:upper:]$]+[[:lower:]_$0-9]*" . font-lock-variable-name-face)
    '("\\(\\!\\)[[:upper:]$]+[[:lower:]_$]*" 1 font-lock-keyword-face)
    '("\\.\\([[:lower:]_$]+\\)(" 1 font-lock-negation-char-face)
@@ -118,7 +118,7 @@
                   (setq not-indented nil))
               ;; Check for rule 4
               (if (or (looking-at "^[ \t]*\\((\\|if\\|then\\|else\\)$") ;; End of line matches to indent
-                      (looking-at "^.*:-$"))
+                      (looking-at "^.*\\((\\|:-\\)$"))
                   (progn
                     ;;(message (format "indenting based on prior EOL match"))
                     (setq cur-indent (+ (current-indentation) metal-mercury-mode-default-tab-width))
