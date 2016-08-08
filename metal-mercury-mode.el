@@ -45,8 +45,12 @@
 (require 'cl-lib)
 
 (defvar metal-mercury-mode-hook nil)
-
 (defvar metal-mercury-mode-default-tab-width 2)
+
+(defvar metal-mercury-mode-compile-function
+  (lambda (module-name)
+    (cl-concatenate 'string "mmc --make " module-name))
+  "Command that when given MODULE-NAME (hello.m module-name would be hello) will compile the mercury file.")
 
 (defvar metal-mercury-mode-map
   (let ((map (make-keymap)))
@@ -58,21 +62,19 @@
 
 (defconst metal-mercury-mode-font-lock-keywords-1
   (list
-   '("%.*$" . font-lock-comment-face)
-   '("import_module \\(\\w+\\)" 1 font-lock-preprocessor-face)
+   '("%.*" . font-lock-comment-face)
+   '("module \\(.+\\)\\." 1 font-lock-doc-face)
    '("import_module" . font-lock-keyword-face)
-   '("module \\(\\w+\\)" 1 font-lock-preprocessor-face)
-   '(" \\(if\\|then\\|else\\|interface\\|pred\\|func\\|module\\|implementation\\)[ \\.]" . font-lock-keyword-face)
+   '(" \\(if\\|then\\|else\\|interface\\|pred\\|func\\|module\\|implementation\\)" . font-lock-keyword-face)
    '("[[:upper:]$]+[[:lower:]_$0-9]*" . font-lock-variable-name-face)
    '("\\(\\!\\)[[:upper:]$]+[[:lower:]_$]*" 1 font-lock-keyword-face)
    '("\\.\\([[:lower:]_$]+\\)(" 1 font-lock-negation-char-face)
    '("\\([[:lower:]_$]+\\.\\)[[:lower:]_$]" 1 font-lock-doc-face)
-   '("[:][:-]" . font-lock-negation-char-face)
    '("\\(\\w+\\)(" 1 font-lock-function-name-face)
    '("\\(\\w+\\)::" 1 font-lock-type-face)
    '("::\\(\\w+\\)" 1 font-lock-type-face)
    '(") is \\(\\w+\\)" 1 font-lock-preprocessor-face)
-   '("%.*" . font-lock-comment-face)
+   '("[,\\.:-]" . font-lock-negation-char-face)
    ))
 
 (defun metal-mercury-mode-indent-line ()
@@ -101,7 +103,7 @@
               (save-excursion
                 (forward-line -1)
                 (setq cur-indent (- (current-indentation) (* undo-mult metal-mercury-mode-default-tab-width)))
-                (message (format "unindenting to %s" cur-indent))
+                ;;(message (format "unindenting to %s" cur-indent))
                 )
               (if (< cur-indent 0)
                   (setq cur-indent 0))
@@ -111,14 +113,14 @@
             (forward-line -1)
             (if (looking-at ".*[\\.]$") ; Check for rule 3
                 (progn
-                  (message "Reset indenting based on rule 3, EOL comma or dot")
+                  ;;(message "Reset indenting based on rule 3, EOL comma or dot")
                   (setq cur-indent 0);;(current-indentation))
                   (setq not-indented nil))
               ;; Check for rule 4
               (if (or (looking-at "^[ \t]*\\((\\|if\\|then\\|else\\)$") ;; End of line matches to indent
                       (looking-at "^.*:-$"))
                   (progn
-                    (message (format "indenting based on prior EOL match"))
+                    ;;(message (format "indenting based on prior EOL match"))
                     (setq cur-indent (+ (current-indentation) metal-mercury-mode-default-tab-width))
                     (setq not-indented nil))
                 (if (bobp) ; Check for rule 5
@@ -139,7 +141,7 @@
   (interactive)
   (save-buffer)
   (let ((module-name (replace-regexp-in-string ".*\\/\\(.*?\\)\\..*" "\\1" (buffer-file-name))))
-    (shell-command (cl-concatenate 'string "mmc --make " module-name) "MERCURY-COMPILE")
+    (shell-command (funcall metal-mercury-mode-compile-function module-name) "MERCURY-COMPILE")
     (switch-to-buffer-other-window "MERCURY-COMPILE")))
 
 (defun metal-mercury-mode-runner ()
@@ -147,8 +149,7 @@
   (interactive)
   (save-buffer)
   (let ((module-name (replace-regexp-in-string ".*\\/\\(.*?\\)\\..*" "\\1" (buffer-file-name))))
-    ;; todo: Check for binary (user variable) and also for compile success before running it
-    (shell-command (cl-concatenate 'string "mmc --make " module-name) "MERCURY-COMPILE")
+    (shell-command (funcall metal-mercury-mode-compile-function module-name) "MERCURY-COMPILE")
     (shell-command (cl-concatenate 'string "./" module-name) "MERCURY-RUNNER")
     (switch-to-buffer-other-window "MERCURY-RUNNER")))
 
