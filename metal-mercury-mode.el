@@ -85,12 +85,12 @@
       (indent-line-to 0) ; Check for rule 1
     (let ((not-indented t) cur-indent)
       ;; Check for rule 2 - End of a block (unindent)
-      (if (looking-at "^[ \t]*\\(then\\|else\\|)\\)")
+      (if (looking-at "^[ \t]*\\(;\\|then\\|else\\|)\\)")
           (progn
             (let ((undo-mult 1))
 
-              ;; When we close on a parenthesis, unindent twice
-              (when (looking-at "[\t ]*)[\\.]*") (setq undo-mult 2))
+              ;; When we close on a parenthesis, unindent twice - why?
+              (when (looking-at "[\t ]*)[\\.]*") (setq undo-mult 1))
 
               ;; When we close on then/else single lines, don't unindent at all
               (when (looking-at "[\t ]*\\(then\\|else\\)")
@@ -109,19 +109,22 @@
                   (setq cur-indent 0))
               ))
         (save-excursion
-          (while not-indented
+          (while not-indented ;; While loop backtracks up to last indent match
             (forward-line -1)
             (if (looking-at ".*[\\.]$") ; Check for rule 3
                 (progn
-                  ;;(message "Reset indenting based on rule 3, EOL comma or dot")
+                  (message "Reset indenting based on rule 3, EOL dot")
                   (setq cur-indent 0);;(current-indentation))
                   (setq not-indented nil))
               ;; Check for rule 4
-              (if (or (looking-at "^[ \t]*\\((\\|if\\|then\\|else\\)$") ;; End of line matches to indent
-                      (looking-at "^.*\\((\\|:-\\)$"))
+              (if (or (looking-at "^[ \t]*\\(;\\|if\\|then\\|else\\)$") ;; End of line matches to indent
+                      (looking-at "^[ \t]*),$") ;; Closing of switch statements
+                      (looking-at "^.*\\((\\|:-\\)$")) ;; Predicate or open paren
                   (progn
-                    ;;(message (format "indenting based on prior EOL match"))
-                    (setq cur-indent (+ (current-indentation) metal-mercury-mode-default-tab-width))
+                    (if (looking-at "^[\t ]*),$")
+                        (setq cur-indent (current-indentation))
+                      (setq cur-indent (+ (current-indentation) metal-mercury-mode-default-tab-width)))
+                    (message (thing-at-point 'line t))
                     (setq not-indented nil))
                 (if (bobp) ; Check for rule 5
                     (setq not-indented nil)))))))
