@@ -144,15 +144,15 @@
   (interactive)
   (save-buffer)
   (let ((module-name (replace-regexp-in-string ".*\\/\\(.*?\\)\\..*" "\\1" (buffer-file-name))))
-    (shell-command (funcall metal-mercury-mode-compile-function module-name) "MERCURY-COMPILE")
-    (switch-to-buffer-other-window "MERCURY-COMPILE")))
+    (compile (funcall metal-mercury-mode-compile-function module-name))
+    (switch-to-buffer-other-window "*compilation*")))
 
 (defun metal-mercury-mode-runner ()
   "Compile and run the active mercury file."
   (interactive)
   (save-buffer)
   (let ((module-name (replace-regexp-in-string ".*\\/\\(.*?\\)\\..*" "\\1" (buffer-file-name))))
-    (shell-command (funcall metal-mercury-mode-compile-function module-name) "MERCURY-COMPILE")
+    (compile (funcall metal-mercury-mode-compile-function module-name))
     (shell-command (cl-concatenate 'string "./" module-name) "MERCURY-RUNNER")
     (switch-to-buffer-other-window "MERCURY-RUNNER")))
 
