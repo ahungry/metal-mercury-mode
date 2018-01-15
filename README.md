@@ -24,7 +24,7 @@ Then, make sure to add the following to your ~/.emacs:
 
 ```lisp
 (add-to-list 'load-path "~/.emacs.d/metal-mercury-mode/")
-(require 'metal-mecury-mode)
+(require 'metal-mercury-mode)
 ```
 
 ### Using metal-mercury-mode.el
