@@ -43,6 +43,7 @@
 ;; Mode bootstrapped from tutorial here: https://www.emacswiki.org/emacs/ModeTutorial#toc1
 
 (require 'cl-lib)
+(require 'mercury-font-lock)
 
 (defvar metal-mercury-mode-hook nil)
 (defvar metal-mercury-mode-default-tab-width 2)
@@ -60,23 +61,6 @@
     map)
   "Keymap for metal mercury major mode.")
 
-(defconst metal-mercury-mode-font-lock-keywords-1
-  (list
-   '("%.*" . font-lock-comment-face)
-   '("module \\(.+\\)\\." 1 font-lock-doc-face)
-   '("import_module" . font-lock-keyword-face)
-   '("[\t ]*\\(if\\|then\\|else\\|interface\\|pred\\|func\\|module\\|implementation\\)" . font-lock-keyword-face)
-   '("[[:upper:]$]+[[:lower:]_$0-9]*" . font-lock-variable-name-face)
-   '("\\(\\!\\)[[:upper:]$]+[[:lower:]_$]*" 1 font-lock-keyword-face)
-   '("\\.\\([[:lower:]_$]+\\)(" 1 font-lock-negation-char-face)
-   '("\\([[:lower:]_$]+\\.\\)[[:lower:]_$]" 1 font-lock-doc-face)
-   '("\\(\\w+\\)(" 1 font-lock-function-name-face)
-   '("\\(\\w+\\)::" 1 font-lock-type-face)
-   '("::\\(\\w+\\)" 1 font-lock-type-face)
-   '(") is \\(\\w+\\)" 1 font-lock-preprocessor-face)
-   '("[,\\.:-]" . font-lock-negation-char-face)
-   ))
-
 (defun metal-mercury-mode-indent-line ()
   "Indent the current line as mercury code."
   (interactive)
@@ -85,7 +69,7 @@
       (indent-line-to 0) ; Check for rule 1
     (let ((not-indented t) cur-indent)
       ;; Check for rule 2 - End of a block (unindent)
-      (if (looking-at "^[ \t]*\\(;\\|then\\|else\\|)\\)")
+      (if (looking-at "^[ \t]*\\(;.*\\|then\\|else\\|)\\)")
           (progn
             (let ((undo-mult 1))
 
@@ -117,7 +101,7 @@
                   (setq cur-indent 0);;(current-indentation))
                   (setq not-indented nil))
               ;; Check for rule 4
-              (if (or (looking-at "^[ \t]*\\(;\\|if\\|then\\|else\\)$") ;; End of line matches to indent
+              (if (or (looking-at "^[ \t]*\\(;.*\\|if\\|then\\|else\\)$") ;; End of line matches to indent
                       (looking-at "^[ \t]*),$") ;; Closing of switch statements
                       (looking-at "^.*\\((\\|:-\\)$")) ;; Predicate or open paren
                   (progn
@@ -162,12 +146,11 @@
   (kill-all-local-variables)
   (set-syntax-table metal-mercury-mode-syntax-table)
   (use-local-map metal-mercury-mode-map)
-  (set (make-local-variable 'font-lock-defaults)
-       '(metal-mercury-mode-font-lock-keywords-1))
   (set (make-local-variable 'indent-line-function)
        'metal-mercury-mode-indent-line)
   (setq major-mode 'metal-mercury-mode)
-  (setq mode-name "MMM")
+  (setq mode-name "Mercury")
+  (turn-on-mercury-font-lock)
   (run-hooks 'metal-mercury-mode-hook))
 
 ;;;###autoload
