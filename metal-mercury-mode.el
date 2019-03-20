@@ -103,7 +103,7 @@
               ;; Check for rule 4
               (if (or (looking-at "^[ \t]*\\(;.*\\|if\\|then\\|else\\)$") ;; End of line matches to indent
                       (looking-at "^[ \t]*),$") ;; Closing of switch statements
-                      (looking-at "^.*\\((\\|:-\\)$")) ;; Predicate or open paren
+                      (looking-at "^.*\\(([^)]*\\|\\[[^\\]]*\\|:-\\)$")) ;; Predicate or open paren/bracket
                   (progn
                     (if (looking-at "^[\t ]*),$")
                         (setq cur-indent (current-indentation))
