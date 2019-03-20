@@ -86,7 +86,9 @@
               ;; Step back a line and check indent level
               (save-excursion
                 (forward-line -1)
-                (setq cur-indent (- (current-indentation) (* undo-mult metal-mercury-mode-default-tab-width)))
+                (setq cur-indent
+                      (- (current-indentation)
+                         (* undo-mult metal-mercury-mode-default-tab-width)))
                 ;;(message (format "unindenting to %s" cur-indent))
                 )
               (if (< cur-indent 0)
@@ -101,13 +103,17 @@
                   (setq cur-indent 0);;(current-indentation))
                   (setq not-indented nil))
               ;; Check for rule 4
-              (if (or (looking-at "^[ \t]*\\(;.*\\|if\\|then\\|else\\)$") ;; End of line matches to indent
-                      (looking-at "^[ \t]*),$") ;; Closing of switch statements
-                      (looking-at "^.*\\(([^)]*\\|\\[[^\\]]*\\|:-\\)$")) ;; Predicate or open paren/bracket
+              ;; End of line matches to indent
+              (if (or (looking-at "^[ \t]*\\(;.*\\|if\\|then\\|else\\)$")
+                      ;; Closing of switch statements
+                      (looking-at "^[ \t]*),$")
+                      ;; Predicate or open paren/bracket
+                      (looking-at "^.*\\(([^)]*\\|{[^}]*\\|\\[[^\\]]*\\|:-\\)$"))
                   (progn
                     (if (looking-at "^[\t ]*),$")
                         (setq cur-indent (current-indentation))
-                      (setq cur-indent (+ (current-indentation) metal-mercury-mode-default-tab-width)))
+                      (setq cur-indent
+                            (+ (current-indentation) metal-mercury-mode-default-tab-width)))
                     (message (thing-at-point 'line t))
                     (setq not-indented nil))
                 (if (bobp) ; Check for rule 5
