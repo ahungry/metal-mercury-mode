@@ -44,6 +44,8 @@
 
 (require 'cl-lib)
 (require 'mercury-font-lock)
+(require 'subr-x)
+(require 'dash)
 
 (defvar metal-mercury-mode-hook nil)
 (defvar metal-mercury-mode-default-tab-width 2)
@@ -61,6 +63,7 @@
     map)
   "Keymap for metal mercury major mode.")
 
+;; TODO: Properly unindent closing parens twice after finished else expression.
 (defun metal-mercury-mode-indent-line ()
   "Indent the current line as mercury code."
   (interactive)
@@ -89,7 +92,6 @@
                 (setq cur-indent
                       (- (current-indentation)
                          (* undo-mult metal-mercury-mode-default-tab-width)))
-                ;;(message (format "unindenting to %s" cur-indent))
                 )
               (if (< cur-indent 0)
                   (setq cur-indent 0))
@@ -99,28 +101,52 @@
             (forward-line -1)
             (if (looking-at ".*[\\.]$") ; Check for rule 3
                 (progn
-                  (message "Reset indenting based on rule 3, EOL dot")
                   (setq cur-indent 0);;(current-indentation))
                   (setq not-indented nil))
               ;; Check for rule 4
-              ;; End of line matches to indent
-              (if (or (looking-at "^[ \t]*\\(;.*\\|if\\|then\\|else\\)$")
-                      ;; Closing of switch statements
-                      (looking-at "^[ \t]*),$")
-                      ;; Predicate or open paren/bracket
-                      (looking-at "^.*\\(([^)]*\\|{[^}]*\\|\\[[^\\]]*\\|:-\\|=\\) *$"))
-                  (progn
-                    (if (looking-at "^[\t ]*),$")
-                        (setq cur-indent (current-indentation))
-                      (setq cur-indent
-                            (+ (current-indentation) metal-mercury-mode-default-tab-width)))
-                    (message (thing-at-point 'line t))
-                    (setq not-indented nil))
-                (if (bobp) ; Check for rule 5
-                    (setq not-indented nil)))))))
+              (let ((without-literal-str
+                     (replace-regexp-in-string "\".*\"" "" (thing-at-point 'line t))))
+                (let ((unmatched-closing-paren
+                       (< (length (matches-in-string "(" without-literal-str))
+                          (length (matches-in-string ")" without-literal-str)))))
+                  (if (or (looking-at (concat "^[ \t]*"
+                                              "\\(;.*"
+                                              "\\|if"
+                                              "\\|then"
+                                              "\\|else"
+                                              "\\)"
+                                              "$"))
+                          unmatched-closing-paren
+                          (looking-at (concat
+                                       "^.*"
+                                       "\\(([^)]*"
+                                       "\\|{[^}]*"
+                                       "\\|\\[[^\\]]*"
+                                       "\\|:-"
+                                       "\\|="
+                                       "\\)"
+                                       " *$")))
+                      (progn
+                        (if unmatched-closing-paren
+                            (progn
+                              (setq cur-indent
+                                    (- (current-indentation)
+                                       metal-mercury-mode-default-tab-width)))
+                          (progn
+                            (setq cur-indent
+                                  (+ (current-indentation)
+                                     metal-mercury-mode-default-tab-width))))
+                        (setq not-indented nil))
+                    (if (bobp) ; Check for rule 5
+                        (setq not-indented nil)))))))))
       (if cur-indent
           (indent-line-to cur-indent)
         (indent-line-to 0)))))
+
+(defun matches-in-string (regex str)
+  "Return all occurrences of REGEX in STR."
+  (-filter #'(lambda (x) (not (eq "" x)))
+           (split-string str regex)))
 
 (defvar metal-mercury-mode-syntax-table
   (let ((st (make-syntax-table)))
