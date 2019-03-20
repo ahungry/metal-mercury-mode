@@ -148,6 +148,11 @@
   (use-local-map metal-mercury-mode-map)
   (set (make-local-variable 'indent-line-function)
        'metal-mercury-mode-indent-line)
+
+  (setq-local comment-start "%")
+  (setq-local comment-end "")
+  (setq-local paragraph-separate "\\(\r\t\n\\|-}\\)$")
+
   (setq major-mode 'metal-mercury-mode)
   (setq mode-name "Mercury")
   (turn-on-mercury-font-lock)
