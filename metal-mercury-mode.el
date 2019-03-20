@@ -108,7 +108,7 @@
                       ;; Closing of switch statements
                       (looking-at "^[ \t]*),$")
                       ;; Predicate or open paren/bracket
-                      (looking-at "^.*\\(([^)]*\\|{[^}]*\\|\\[[^\\]]*\\|:-\\)$"))
+                      (looking-at "^.*\\(([^)]*\\|{[^}]*\\|\\[[^\\]]*\\|:-\\|=\\) *$"))
                   (progn
                     (if (looking-at "^[\t ]*),$")
                         (setq cur-indent (current-indentation))
