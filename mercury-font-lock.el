@@ -53,10 +53,11 @@ To disable this highlighting, set this to nil."
   :group 'mercury-font-lock)
 
 (defconst mercury--keywords
-  '("where" "if" "then" "else"
+  '("if" "then" "else" "not"
     ;; declarations
-    "type" "solver" "pred" "func" "inst" "mode" "typeclass"
-    "instance" "pragma" "promise" "initialise" "finalise"
+    "all" "some" "pred" "func"
+    "type" "solver" "inst" "mode" "typeclass" "instance"
+    "pragma" "promise" "initialise" "finalise"
     "mutable" "module" "interface" "implementation"
     "import_module" "use_module" "include_module" "end_module"
     ;; inst names
@@ -176,9 +177,25 @@ Also highlights opening brackets without a matching bracket."
 (defconst mercury--font-lock-highlighting
   (list (list (cons "%.*" 'font-lock-comment-face)
               mercury--font-lock-keywords
-              (cons "\\(\\!\\)[[:upper:]$]+[[:lower:]_$]*" '(1 font-lock-keyword-face))
+              (cons "\\(\\!\\)[[:upper:]$]+[[:lower:]_$]*" ;; e.g. !IO
+                    '(1 font-lock-keyword-face))
+              (cons (concat
+                     "\\<"
+                     "\\(0[box]?[0-9][0-9_]*" ;; int literals
+                     "\\|[0-9]+\\(\\.[0-9]+\\(e\\([+-][0-9]+\\)?\\)?\\)?" ;; float literals
+                     "\\)"
+                     "\\>")
+                    '(1 font-lock-constant-face))
               mercury--font-lock-functions
               mercury--font-lock-variables
+              (cons (concat
+                     "\\<\\(?:::\\|[(,=]\\) *"
+                     "\\([[:lower:]][[:alpha:]_0-9]+\\)\\>")
+                    '(1 font-lock-type-face))
+              (cons (concat
+                     "\\([[:lower:]][[:alpha:]_0-9]+\\)"
+                     "\\(?:::\\|[,)\\.]\\| is\\)")
+                    '(1 font-lock-type-face))
               mercury--font-lock-multiline-list-comma-closing-brackets
               mercury--font-lock-multiline-list-opening-brackets
               mercury--font-lock-operators
