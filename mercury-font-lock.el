@@ -53,23 +53,45 @@ To disable this highlighting, set this to nil."
   :group 'mercury-font-lock)
 
 (defconst mercury--keywords
-  '("if" "then" "else" "not"
-    ;; declarations
-    "all" "some" "pred" "func"
-    "type" "solver" "inst" "mode" "typeclass" "instance"
-    "pragma" "promise" "initialise" "finalise"
-    "mutable" "module" "interface" "implementation"
-    "import_module" "use_module" "include_module" "end_module"
-    ;; inst names
-    "any" "bound" "bound_unique"
-    "clobbered" "clobbered_any"
-    "free" "ground" "mostly_clobbered"
-    "mostly_unique" "mostly_unique_any"
-    "not_reached" "unique" "unique_any"
-    "any_func" "any_pred" "is"
+  '(;; keywords taken from the language reference manual.
+    ;; allowed declarations
+    "type" "solver" "pred" "func" "inst" "mode" "typeclass"
+    "instance" "pragma" "promise" "initialise" "finalise"
+    "mutable" "module" "interface" "implementation" "import_module"
+    "use_module" "include_module" "end_module"
     ;; determinism
     "erroneous" "failure" "det" "semidet" "nondet"
     "multi" "cc_nondet" "cc_multi"
+    ;; reserved inst names
+    "=<" "any" "bound" "bound_unique" "clobbered" "clobbered_any"
+    "free" "ground" "is" "mostly_clobbered" "mostly_unique"
+    "mostly_unique_any" "not_reached" "unique" "unique_any"
+    ;; reserved mode names (excluding ones already included)
+    "=" ">>" "any_func" "any_pred"
+    ;; reserved operators (excluding ones already included)
+    "." "!" "!." "!:" "@" "^" "^" "event" ":" "‘op ‘" "**" "-" "\\"
+    "*" "/" "//" "<<" "div" "mod" "rem" "for" "+" "+" "++"
+    "-" "--" "/\\" "\\/" ".." ":=" "=^" "<" "=.." "=:="
+    "==" "=\\=" ">" ">=" "@<" "@=<" "@>" "@>=" "\\=" "\\=="
+    "~=" "and" "or" "impure" "semipure" "\\\\+"
+    "not" "when" "~" "<=" "<=>" "=>"
+    "all" "arbitrary" "atomic" "disable_warning" "disable_warnings"
+    "promise_equivalent_solutions" "promise_equivalent_solution_sets"
+    "promise_exclusive" "promise_exclusive_exhaustive"
+    "promise_exhaustive" "promise_impure" "promise_pure"
+    "promise_semipure" "require_complete_switch"
+    "require_switch_arms_det" "require_switch_arms_semidet"
+    "require_switch_arms_multi" "require_switch_arms_nondet"
+    "require_switch_arms_cc_multi" "require_switch_arms_cc_nondet"
+    "require_switch_arms_erroneous" "require_switch_arms_failure"
+    "require_det" "require_semidet"
+    "require_multi" "require_nondet" "require_cc_multi"
+    "require_cc_nondet" "require_erroneous" "require_failure"
+    "trace" "try" "some" "," "&" "->" ";" "or_else" "then" "if" "else"
+    "::" "==>" "where" "--->" "catch" "type" "solver" "catch_any"
+    "initialise" "initialize" "finalise" "finalize" "inst" "instance"
+    "mode" "module" "pragma" "promise" "rule" "typeclass" "use_module"
+    "-->" ":-" "?-"
     )
   "Reserved keywords.")
 
