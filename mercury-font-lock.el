@@ -184,14 +184,17 @@ Also highlights opening brackets without a matching bracket."
                     '(1 font-lock-constant-face))
               mercury--font-lock-functions
               mercury--font-lock-variables
+
+              ;; types, modes and modules
               (cons (concat
-                     "\\<\\(?:::\\|[(,=]\\) *"
+                     "\\<\\(?:::\\|[({,=]\\) *"
                      "\\([[:lower:]][[:alpha:]_0-9]+\\)\\>")
                     '(1 font-lock-type-face))
               (cons (concat
                      "\\([[:lower:]][[:alpha:]_0-9]+\\)"
-                     "\\(?:::\\|[,)\\.]\\| is\\)")
+                     "\\(?:::\\| *[,})\\.]\\| is\\)")
                     '(1 font-lock-type-face))
+
               mercury--font-lock-multiline-list-comma-closing-brackets
               mercury--font-lock-multiline-list-opening-brackets
               mercury--font-lock-operators
