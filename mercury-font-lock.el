@@ -103,36 +103,6 @@ To disable this highlighting, set this to nil."
   (cons mercury--regexp-keywords font-lock-keyword-face)
   "Highlighting for keywords.")
 
-(defconst mercury--regexp-operators
-  "[-+*/\\\\<>=:@^&.;,]+"
-  "A regular expression representing operators inside expressions.")
-
-(defvar mercury--syntax-table
-  (let ((st (make-syntax-table)))
-    (modify-syntax-entry ?%  "<" st)
-    (modify-syntax-entry ?\n ">" st)
-
-    ;; matching parens
-    (modify-syntax-entry ?\( "()" st)
-    (modify-syntax-entry ?\) ")(" st)
-    (modify-syntax-entry ?\[ "(]" st)
-    (modify-syntax-entry ?\] ")[" st)
-    (modify-syntax-entry ?\{ "(}" st)
-    (modify-syntax-entry ?\} "){" st)
-
-    ;; " and ' for literal strings
-    (modify-syntax-entry ?\" "\"\"" st)
-    (modify-syntax-entry ?\' "\"'" st)
-    (modify-syntax-entry ?\\ "/" st)
-
-    ;; operator chars get punctuation syntax
-    (mapc #'(lambda (ch) (modify-syntax-entry ch "." st))
-          mercury--regexp-operators)
-
-    ;; _ can be part of names, so give it symbol constituent syntax
-    (modify-syntax-entry ?_ "_" st)
-    st))
-
 (defconst mercury--regexp-function
   "\\(^\\|func \\|pred \\|mode \\)\\(\\<[a-z][0-9A-Za-z_]*\\)"
   "A regular expression representing function names.")
@@ -148,6 +118,10 @@ To disable this highlighting, set this to nil."
 (defconst mercury--font-lock-variables
   (cons mercury--regexp-variable font-lock-variable-name-face)
   "Highlighting for function names.")
+
+(defconst mercury--regexp-operators
+  "[-+*/\\\\<>=:@^&.;,]+"
+  "A regular expression representing operators inside expressions.")
 
 (defconst mercury--font-lock-operators
   (cons mercury--regexp-operators 'mercury-font-lock-operators-face)
@@ -227,7 +201,6 @@ Also highlights opening brackets without a matching bracket."
 (defun turn-on-mercury-font-lock ()
   "Turn on Mercury font lock."
   (setq font-lock-multiline t)
-  (set-syntax-table mercury--syntax-table)
   (set (make-local-variable 'font-lock-defaults) mercury--font-lock-highlighting))
 
 (provide 'mercury-font-lock)

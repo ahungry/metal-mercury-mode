@@ -1,10 +1,11 @@
 ;;; metal-mercury-mode.el --- Concise mercury major mode
 
-;; Copyright (C) 2016  Matthew Carter
+;; Copyright (C) 2016-2019  Matthew Carter, Ludvig Böklin
 
+;; Author: Ludvig Böklin <ludvig.boklin@protonmail.com>
 ;; Author: Matthew Carter <m@ahungry.com>
 ;; Maintainer: Matthew Carter <m@ahungry.com>
-;; URL: https://github.com/ahungry/metal-mercury-mode
+;; URL: https://github.com/lboklin/metal-mercury-mode
 ;; Version: 0.0.1
 ;; Keywords: ahungry emacs mercury prolog
 ;; Package-Requires: ((emacs "24") (cl-lib "0.5"))
@@ -44,11 +45,9 @@
 
 (require 'cl-lib)
 (require 'mercury-font-lock)
+(require 'mercury-indentation)
 (require 'subr-x)
 (require 'dash)
-
-(defvar metal-mercury-mode-hook nil)
-(defvar metal-mercury-mode-default-tab-width 2)
 
 (defvar metal-mercury-mode-compile-function
   (lambda (module-name)
@@ -63,90 +62,31 @@
     map)
   "Keymap for metal mercury major mode.")
 
-;; TODO: Properly unindent closing parens twice after finished else expression.
-(defun metal-mercury-mode-indent-line ()
-  "Indent the current line as mercury code."
-  (interactive)
-  (beginning-of-line)
-  (if (bobp)
-      (indent-line-to 0) ; Check for rule 1
-    (let ((not-indented t) cur-indent)
-      ;; Check for rule 2 - End of a block (unindent)
-      (if (looking-at "^[ \t]*\\(;.*\\|then\\|else\\|)\\)")
-          (progn
-            (let ((undo-mult 1))
+(defvar metal-mercury-mode-syntax-table
+  (let ((st (make-syntax-table)))
+    (modify-syntax-entry ?%  "<" st)
+    (modify-syntax-entry ?\n ">" st)
 
-              ;; When we close on a parenthesis, unindent twice - why?
-              (when (looking-at "[\t ]*)[\\.]*") (setq undo-mult 1))
+    ;; matching parens
+    (modify-syntax-entry ?\( "()" st)
+    (modify-syntax-entry ?\) ")(" st)
+    (modify-syntax-entry ?\[ "(]" st)
+    (modify-syntax-entry ?\] ")[" st)
+    (modify-syntax-entry ?\{ "(}" st)
+    (modify-syntax-entry ?\} "){" st)
 
-              ;; When we close on then/else single lines, don't unindent at all
-              (when (looking-at "[\t ]*\\(then\\|else\\)")
-                (save-excursion
-                  (forward-line -1)
-                  (when (looking-at "[\t ]*\\(if\\|then\\)") (setq undo-mult 0))
-                  ))
+    ;; " and ' for literal strings
+    (modify-syntax-entry ?\" "\"\"" st)
+    (modify-syntax-entry ?\' "\"'" st)
+    (modify-syntax-entry ?\\ "/" st)
 
-              ;; Step back a line and check indent level
-              (save-excursion
-                (forward-line -1)
-                (setq cur-indent
-                      (- (current-indentation)
-                         (* undo-mult metal-mercury-mode-default-tab-width)))
-                )
-              (if (< cur-indent 0)
-                  (setq cur-indent 0))
-              ))
-        (save-excursion
-          (while not-indented ;; While loop backtracks up to last indent match
-            (forward-line -1)
-            (if (looking-at ".*[\\.]$") ; Check for rule 3
-                (progn
-                  (setq cur-indent 0);;(current-indentation))
-                  (setq not-indented nil))
-              ;; Check for rule 4
-              (let ((without-literal-str
-                     (replace-regexp-in-string "\".*\"" "" (thing-at-point 'line t))))
-                (let ((unmatched-closing-paren
-                       (< (length (matches-in-string "(" without-literal-str))
-                          (length (matches-in-string ")" without-literal-str)))))
-                  (if (or (looking-at (concat "^[ \t]*"
-                                              "\\(;.*"
-                                              "\\|if"
-                                              "\\|then"
-                                              "\\|else"
-                                              "\\)"
-                                              "$"))
-                          unmatched-closing-paren
-                          (looking-at (concat
-                                       "^.*"
-                                       "\\(([^)]*"
-                                       "\\|{[^}]*"
-                                       "\\|\\[[^\\]]*"
-                                       "\\|:-"
-                                       "\\|="
-                                       "\\)"
-                                       " *$")))
-                      (progn
-                        (if unmatched-closing-paren
-                            (progn
-                              (setq cur-indent
-                                    (- (current-indentation)
-                                       metal-mercury-mode-default-tab-width)))
-                          (progn
-                            (setq cur-indent
-                                  (+ (current-indentation)
-                                     metal-mercury-mode-default-tab-width))))
-                        (setq not-indented nil))
-                    (if (bobp) ; Check for rule 5
-                        (setq not-indented nil)))))))))
-      (if cur-indent
-          (indent-line-to cur-indent)
-        (indent-line-to 0)))))
+    ;; operator chars get punctuation syntax
+    (mapc #'(lambda (ch) (modify-syntax-entry ch "." st))
+          "[-+*/\\\\<>=:@^&.;,]+")
 
-(defun matches-in-string (regex str)
-  "Return all occurrences of REGEX in STR."
-  (-filter #'(lambda (x) (not (eq "" x)))
-           (split-string str regex)))
+    ;; _ can be part of names, so give it symbol constituent syntax
+    (modify-syntax-entry ?_ "_" st)
+    st))
 
 (defvar metal-mercury-mode-syntax-table
   (let ((st (make-syntax-table)))
@@ -172,14 +112,13 @@
     (shell-command (cl-concatenate 'string "./" module-name) "MERCURY-RUNNER")
     (switch-to-buffer-other-window "MERCURY-RUNNER")))
 
-(defun metal-mercury-mode ()
+;;;###autoload
+(define-derived-mode metal-mercury-mode prog-mode "Mercury"
   "Major mode for editing mercury files."
-  (interactive)
-  (kill-all-local-variables)
+  ;; (interactive)
+  ;; (kill-all-local-variables)
   (set-syntax-table metal-mercury-mode-syntax-table)
   (use-local-map metal-mercury-mode-map)
-  (set (make-local-variable 'indent-line-function)
-       'metal-mercury-mode-indent-line)
 
   (setq-local comment-start "%")
   (setq-local comment-end "")
@@ -188,12 +127,22 @@
   (setq major-mode 'metal-mercury-mode)
   (setq mode-name "Mercury")
   (turn-on-mercury-font-lock)
-  (run-hooks 'metal-mercury-mode-hook))
+  (run-hooks 'metal-mercury-mode-hook)
+  (mercury-indentation-mode))
+
+(defcustom metal-mercury-mode-hook '(mercury-indentation-mode)
+  "List of functions to run after metal-mercury-mode is enabled."
+  :group 'mercury
+  :type 'hook
+  :options '(subword-mode
+             flyspell-prog-mode
+             mercury-indentation-mode
+             highlight-uses-mode
+             imenu-add-menubar-index))
 
 ;;;###autoload
-(progn
-  (add-to-list 'auto-mode-alist '("\\.m\\'" . metal-mercury-mode))
-  )
+(add-to-list 'auto-mode-alist '("\\.m\\'" . metal-mercury-mode))
+
 
 (provide 'metal-mercury-mode)
 
