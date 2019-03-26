@@ -84,50 +84,7 @@ set and deleted as if they were real tabs."
 ;;----------------------------------------------------------------------------
 ;; UI starts here
 
-(defun mercury-indentation-current-indentation ()
-  "Column position of first non-whitespace character in current line."
-  (save-excursion
-    (beginning-of-line)
-    (skip-syntax-forward "-")
-    (current-column)))
-
-(defun mercury-indentation-newline-and-indent ()
-  "Insert newline and indent"
-  (interactive "*")
-  ;;  - save the current column
-  (let ((ci (mercury-indentation-current-indentation)))
-    ;; - jump to the next line and reindent to at the least same level
-    (delete-horizontal-space)
-    (newline)
-    ;; (let ((indentations (or (mercury-indentation-find-indentations)
-    ;;                         '(0))))
-    (let ((indentations '(0)))
-      (mercury-indentation-reindent-to
-       (mercury-indentation-next-indentation (- ci 1) indentations 'nofail)
-       'move))))
-
-(defun mercury-indentation-next-indentation (col indentations &optional nofail)
-  "Find the leftmost indentation which is greater than COL.
-Indentations are taken from INDENTATIONS, which should be a
-list.  Return the last indentation if there are no bigger ones and
-NOFAIL is non-NIL."
-  (when (null indentations)
-    (error "mercury-indentation-next-indentation called with empty list"))
-  (or (cl-find-if (lambda (i) (> i col)) indentations)
-      (when nofail
-        (car (last indentations)))))
-
-(defun mercury-indentation-previous-indentation (col indentations &optional nofail)
-  "Find the rightmost indentation less than COL from INDENTATIONS.
-When no indentations are less than COL, return the rightmost indentation
-if NOFAIL is non-nil, or nil otherwise."
-  (when (null indentations)
-    (error "mercury-indentation-previous-indentation called with empty list"))
-  (let ((rev (reverse indentations)))
-    (or (cl-find-if (lambda (i) (< i col)) rev)
-        (when nofail
-          (car rev)))))
-
+;; TODO
 
 ;; ------------------------------
 ;; Parser starts here
