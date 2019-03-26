@@ -147,7 +147,6 @@ if NOFAIL is non-nil, or nil otherwise."
                 (when (looking-at "^[\t ]*),?") ;; on closing paren
                   (progn
                     (when (looking-at "[\t ]*\\(if\\|then\\|else\\).*$")
-                      (message (concat "looking at " (thing-at-point 'line t)))
                       (setq undo-mult 2)))))
               ;; Step back a line and check indent level
               (save-excursion
@@ -166,17 +165,10 @@ if NOFAIL is non-nil, or nil otherwise."
                         (and (looking-at "^[\t ]*(.+$")
                              (not (parens-match '> (thing-at-point 'line t)))))
                     (progn
-                      (message (thing-at-point 'line t))
-                      (message (concat
-                                "prev line was neither inline thing nor unmatched open paren: "
-                                (thing-at-point 'line t)))
                       (setq cur-indent
                             (- (current-indentation)
                                (* undo-mult mercury-indentation-default-tab-width))))
                   (progn
-                    (message (concat
-                              "prev line was inline thing or unmatched open paren: "
-                              (thing-at-point 'line t)))
                     (setq undo-mult 1)
                     (setq cur-indent (current-indentation)))))
               (if (< cur-indent 0)
@@ -187,7 +179,6 @@ if NOFAIL is non-nil, or nil otherwise."
             (forward-line -1)
             (if (looking-at ".*\\. *$") ; Check for rule 3
                 (progn
-                  (message (thing-at-point 'line t))
                   (setq cur-indent 0)
                   (setq not-indented nil))
               ;; Check for rule 4
@@ -216,7 +207,6 @@ if NOFAIL is non-nil, or nil otherwise."
                       ;; else indent.
                       (if (parens-match '< line)
                           (progn
-                            (message "unindent because unmatched ) on prev line")
                             (if (string-match "^[\t ]*),?" line)
                                 (setq cur-indent (current-indentation))
                               (setq cur-indent
@@ -224,7 +214,6 @@ if NOFAIL is non-nil, or nil otherwise."
                                      mercury-indentation-default-tab-width)))
                             (setq not-indented nil))
                         (progn
-                          (message (concat "indent because of indent starter: " line))
                           (setq cur-indent
                                 (+ (current-indentation)
                                    mercury-indentation-default-tab-width))
@@ -234,13 +223,11 @@ if NOFAIL is non-nil, or nil otherwise."
                   ;; but not commented or empty, do not change indent.
                   (when (not (string-match "^[\t ]*\\(%\\|\\)$" line))
                     (progn
-                      (message "retain indentation")
                       (setq cur-indent
                             (current-indentation))
                       (setq not-indented nil))))
                 (if (bobp) ; Check for rule 5
                     (progn
-                      (message "bobp")
                       (setq not-indented nil))))))))
       (if (> cur-indent 0)
           (indent-line-to cur-indent)
