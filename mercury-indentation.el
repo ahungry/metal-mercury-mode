@@ -82,15 +82,6 @@ set and deleted as if they were real tabs."
   (interactive)
   (mercury-indentation-mode t))
 
-
-;;----------------------------------------------------------------------------
-;; UI starts here
-
-;; TODO
-
-;; ------------------------------
-;; Parser starts here
-
 (defun mercury-indentation-indent-line ()
   "Indent the current line as mercury code."
   (interactive)
