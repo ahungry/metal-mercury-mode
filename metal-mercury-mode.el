@@ -5,7 +5,7 @@
 ;; Author: Ludvig Böklin <ludvig.boklin@protonmail.com>
 ;; Author: Matthew Carter <m@ahungry.com>
 ;; Maintainer: Matthew Carter <m@ahungry.com>
-;; URL: https://github.com/lboklin/metal-mercury-mode
+;; URL: https://github.com/ahungry/metal-mercury-mode
 ;; Version: 0.0.1
 ;; Keywords: ahungry emacs mercury prolog
 ;; Package-Requires: ((emacs "24") (cl-lib "0.5"))

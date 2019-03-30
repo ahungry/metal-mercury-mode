@@ -1,12 +1,14 @@
 ;;; mercury-indentation.el --- indentation module for Mercury Mode -*- lexical-binding: t -*-
 
-;; Copyright (C) 2013-2019  Kristof Bastiaensen, Gergely Risko, Ludvig Böklin
+;; Copyright (C) 2013-2019  Kristof Bastiaensen, Gergely Risko, Matthew Carter, Ludvig Böklin
 
 ;; Author: Kristof Bastiaensen <kristof.bastiaensen@vleeuwen.org>
 ;; Author: Gergely Risko <errge@nilcons.com>
+;; Author: Matthew Carter <m@ahungry.com>
 ;; Author: Ludvig Böklin <ludvig.boklin@protonmail.com>
 ;; Keywords: indentation mercury
-;; URL: https://github.com/lboklin/metal-mercury-mode
+;; Maintainer: Matthew Carter <m@ahungry.com>
+;; URL: https://github.com/ahungry/metal-mercury-mode
 
 ;; This file is not part of GNU Emacs.
 

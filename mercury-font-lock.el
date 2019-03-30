@@ -2,8 +2,9 @@
 
 ;; Copyright (C) 2019 Ludvig Böklin
 
-;; Authors: Ludvig Böklin
-;; URL: https://github.com/lboklin/metal-mercury-mode
+;; Author: Ludvig Böklin <ludvig.boklin@protonmail.com>
+;; Maintainer: Matthew Carter <m@ahungry.com>
+;; URL: https://github.com/ahungry/metal-mercury-mode
 
 ;; This file is not part of GNU Emacs.
 
