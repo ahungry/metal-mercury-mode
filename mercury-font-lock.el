@@ -188,7 +188,7 @@ Also highlights opening brackets without a matching bracket."
 
               ;; types, modes and modules
               (cons (concat
-                     "\\<\\(?:::\\|[({,=]\\) *"
+                     "\\<\\(?:type\\|::\\|:\\|[({,=]\\) *"
                      "\\([[:lower:]][[:alpha:]_0-9]+\\)\\>")
                     '(1 font-lock-type-face))
               (cons (concat
