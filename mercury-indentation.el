@@ -47,7 +47,7 @@
   :group 'mercury
   :prefix "mercury-indentation-")
 
-(defvar mercury-indentation-default-tab-width 2)
+(defvar mercury-indentation-default-tab-width 4)
 
 (defcustom mercury-indentation-electric-flag nil
   "Non-nil means insertion of some characters may auto reindent the line.
