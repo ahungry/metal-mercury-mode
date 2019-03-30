@@ -37,6 +37,7 @@
 ;; Otherwise, call `mercury-indentation-mode'.
 
 (require 'cl-lib)
+(require 'dash)
 
 ;;; Code:
 ;;;###autoload
@@ -73,8 +74,7 @@ set and deleted as if they were real tabs."
   (kill-local-variable 'indent-region-function)
 
   (when mercury-indentation-mode
-    (setq-local indent-line-function #'mercury-indentation-indent-line)
-    (setq-local indent-region-function #'mercury-indentation-indent-region)))
+    (setq-local indent-line-function #'mercury-indentation-indent-line)))
 
 ;;;###autoload
 (defun turn-on-mercury-indentation ()
@@ -192,36 +192,16 @@ set and deleted as if they were real tabs."
           (indent-line-to cur-indent)
         (indent-line-to 0)))))
 
-(defun is-indent-starter (str)
-  "Return t if STR is an indentation starter."
-  (or (parens-match '> str)
-      (string-match (concat "^[ \t]*"
-                            "\\(;"
-                            "\\|.*if"
-                            "\\|.*then"
-                            "\\|.*else"
-                            "\\)"
-                            ".*$")
-                    str)
-      (string-match (concat "^.*"
-                            "\\(:-"
-                            "\\|="
-                            "\\)"
-                            " *$")
-                    str)))
-
 (defun parens-match (comp str)
   "Return result comparing with COMP number of opening parens with closing in STR."
-  (funcall comp
-           (length (matches-in-string "(" str))
-           (length (matches-in-string ")" str))))
-
-(defun matches-in-string (regex str)
-  "Return all occurrences of REGEX in STR."
-  (-filter #'(lambda (x) (not (eq "" x)))
-           (split-string str regex)))
-
+  (let
+      ((matches-in-string #'(lambda (regex str)
+                              (-filter #'(lambda (x) (not (eq "" x)))
+                                       (split-string str regex)))))
+    (funcall comp
+             (length (funcall matches-in-string "(" str))
+             (length (funcall matches-in-string ")" str)))))
 
 (provide 'mercury-indentation)
 
-;; mercury-indentation.el ends here
+;;; mercury-indentation.el ends here
